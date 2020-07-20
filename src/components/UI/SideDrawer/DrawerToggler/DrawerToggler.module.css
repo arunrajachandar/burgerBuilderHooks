@@ -1,0 +1,20 @@
+.DrawerToggler{
+    min-width: 50px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 10px;     
+    background-color: rgba(255,255,255,0.2);
+}
+.DrawerToggler>div{
+
+    height: 10%;
+    width: 80%;
+    margin: 2px auto;
+    background-color: white;
+}
+

@@ -1,0 +1,53 @@
+.Element{
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.Input{
+    width: 100%;
+    outline: none;
+    font: inherit;
+    padding: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    display: block;
+}
+
+.Input:focus{
+    outline: none;
+    background-color: #ccc;
+}
+
+
+
+.label{
+    margin-bottom: 8px;
+    display: block;
+}
+
+.failedMessage{
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    color: red;
+    float: left;
+}
+
+.failedMessage li{
+        font-size: 0.9rem;
+        list-style: none;
+}
+
+.Errored{
+    outline: 2px solid red;
+}
+.Errored:hover{
+    transition: ease-in-out;
+}
+
+/* @media (min-width: 500px){
+    .Input{
+        width: 200px;
+    }
+} */
