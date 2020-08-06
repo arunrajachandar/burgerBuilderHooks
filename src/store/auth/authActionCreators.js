@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_KEY = 'AIzaSyDyXMYwvdjMg7tXMu2bbiVG6Fc03Z_VcjA';
 
-const authInit = () =>{
+export const authInit = () =>{
     return {
         type: actionTypes.AUTH_INIT
     }
@@ -16,14 +16,14 @@ export const clearError = () =>{
 }
 
 
-const authFailed = (e) =>{
+export const authFailed = (e) =>{
     return {
         type: actionTypes.AUTH_FAILED,
         error: e
     }
 }
 
-const authSuccess = (authData) =>{
+export const authSuccess = (authData) =>{
     return {
         type: actionTypes.AUTH_SUCCESS,
         payload: authData
@@ -36,40 +36,27 @@ export const authLogout = () =>{
     }
 }
 
-export const logout = (expirationTime) =>{
+export const logoutInitiate = () =>{
+    return{
+        type: actionTypes.AUTH_LOGOUT_INITIATE
 
-    return dispatch =>{
-        setTimeout(()=>{
-            localStorage.removeItem('token');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('expireTime');
-           dispatch(authLogout())
-        },expirationTime*1000)
     }
 }
 
-export const requestForToken = (credentials, isSignUp) =>{
-    return dispatch=>{
-        dispatch(authInit());
-        credentials.returnSecureToken = true;
-        let url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
-        if(isSignUp){
-            url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`
-        }
-        axios.post(url,credentials)
-        .then(res => {
-            console.log(res)           
-            localStorage.setItem('token', res.data.idToken);
-            localStorage.setItem('userId', res.data.localId);
-            localStorage.setItem('refreshToken', res.data.refreshToken)
-            localStorage.setItem('expireTime', new Date(new Date().setMinutes(new Date().getMinutes()+Math.ceil(res.data.expiresIn/60))))
 
-            dispatch(authSuccess({payload: {idToken: res.data.idToken}}))
-            // dispatch(logout(res.data.expiresIn))
-        }
-)
-        .catch(error => dispatch(authFailed(error)))
+export const checkTimeOut = (expirationTime) =>{
+    return {
+        type: actionTypes.AUTH_LOGOUT_TIMEOUT,
+        expirationTime: expirationTime
+    }
+
+}
+
+export const requestForToken = (credentials, isSignUp) =>{
+    return {
+        type: actionTypes.AUTH_REQUEST_FOR_TOKEN,
+        credentials: credentials,
+        isSignUp: isSignUp
     }
 }
 
@@ -101,15 +88,8 @@ export const requestForTokeWithRefreshToken = (refreshToken) =>{
 
 export const authHandler = () =>{
 
-    return dispatch =>{
-        dispatch(authInit());
-        const currTimeStamp = new Date();
-        if(localStorage.getItem('token')){
-            dispatch(authSuccess({payload: {idToken: localStorage.getItem('token')}}))
-            if(currTimeStamp > new Date(localStorage.getItem('expireTime'))){
-                dispatch(requestForTokeWithRefreshToken(localStorage.getItem('refreshToken')))
-            }
-        }
+    return {
+        type: actionTypes.AUTH_VALIDITYCHECK
     }
 }
 

@@ -11,7 +11,9 @@ import authReducer from './store/auth/authReducer';
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-
+import createReduxSaga from 'redux-saga';
+import { watchAuth } from './store/auth/sagaAuthListener';
+import { watchOrders } from './store/orders/sagaOrdersListener';
 
 const rootReducer = combineReducers({
   ings: ingredientsReducer,
@@ -21,9 +23,14 @@ const rootReducer = combineReducers({
 })
  const composeEnhancers = process.env.NODE_ENV === 'development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : null || compose;
 
+const sagaInstance = createReduxSaga();
+
 const store = createStore(rootReducer, composeEnhancers(
-  applyMiddleware(thunk)
+  applyMiddleware(thunk, sagaInstance)
 ));
+
+sagaInstance.run(watchAuth)
+sagaInstance.run(watchOrders)
 
 
 

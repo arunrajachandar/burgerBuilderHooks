@@ -7,7 +7,6 @@ class Logout extends React.Component{
 
     componentDidMount(){
         this.props.onLogout();
-        this.props.onRemoveData();
     }
 
     render(){
@@ -17,8 +16,7 @@ class Logout extends React.Component{
 
 const mapDispatchToProps = dispatch =>{
     return{
-        onLogout: ()=> dispatch(actionCreators.authLogout()),
-        onRemoveData: () => dispatch(actionCreators.logout())
+        onLogout: ()=> dispatch(actionCreators.logoutInitiate())
     }
 }
 

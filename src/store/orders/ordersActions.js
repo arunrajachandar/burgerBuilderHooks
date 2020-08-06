@@ -1,2 +1,3 @@
 export const INIT_ORDERS = 'INIT_ORDERS';
 export const FAILED_ORDERS = 'FAILED_ORDERS';
+export const RETRIEVE_ORDERS = 'RETRIEVE_ORDERS';
