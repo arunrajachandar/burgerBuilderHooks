@@ -2,7 +2,6 @@ import React from 'react';
 import classes from './Order.module.css';
 
 const order = (props) => {
-
     const ingredientSplitUps = []
     for (let ingredient in props.orderDetails.ingredients)
     {

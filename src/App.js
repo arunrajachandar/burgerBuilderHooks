@@ -1,47 +1,50 @@
-import React from 'react';
+import React, {useEffect, Suspense} from 'react';
 import Layout from './components/Layout/Layout';
 import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder';
 import {Route, Switch, Redirect} from 'react-router-dom';
 import Logout from './containers/Auth/Logout/Logout';
 import {authHandler} from './store/auth/authActionCreators';
-import {connect} from 'react-redux';
-import AsyncComponent from './hoc/AsyncComponent/AsyncComponent';
+import { useSelector, useDispatch} from 'react-redux';
+// import AsyncComponent from './hoc/AsyncComponent/AsyncComponent';
 
-const asyncAuth = AsyncComponent(()=>{
+const Auth = React.lazy(()=>{
   return import ('./containers/Auth/Auth');
 })
 
-const asyncOrders = AsyncComponent(()=>{
+const Orders = React.lazy(()=>{
   return import ('./containers/Orders/Orders')
 })
 
-const asyncCheckout = AsyncComponent(()=>{
+const Checkout = React.lazy(()=>{
   return import ('./containers/Checkout/Checkout')
 })
 
-class App extends React.Component {
-  componentDidMount(){
-    this.props.onAuthHandler()
-  }
-  render(){
+const App = (props) => {
+  const isAuthenticated = useSelector(state=>state.auth.authenticatedData !== null)
+  const purchaseable = useSelector(state=> state.ings.purchaseable)
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    dispatch(authHandler())
+  },[dispatch])
+
     let routes = (
       <Switch>
       <Route path="/" exact component={BurgerBuilder}/>
-      <Route path="/auth" component  = {asyncAuth}/>
+      <Route path="/auth" render  = {(props)=> <Auth {...props}/>}/>
       <Redirect to="/"/>
       </Switch>
 
     )
-    if(this.props.isAuthenticated){
+    if(isAuthenticated){
       routes = (
         <Switch>
         
         <Route path="/" exact component={BurgerBuilder}/>
-        <Route path="/checkout" component={asyncCheckout}/>
-        <Route path="/orders" component={asyncOrders}/>
+        <Route path="/checkout" render={(props)=><Checkout {...props}/>}/>
+        <Route path="/orders" render={(props)=><Orders {...props}/>}/>
         <Route path="/logout" component={Logout}/>
         {
-            !this.props.purchaseable?
+            !purchaseable?
               <Redirect to="/"/>
                       : <Redirect to="/checkout" />
           
@@ -54,25 +57,27 @@ class App extends React.Component {
     return (
       <div className="App">
         <Layout>
+          <Suspense fallback={<p>Loading....</p>}>
           {routes}
+          </Suspense>
         </Layout>
       </div>
     );
   
-  }
+
 }
 
-const mapStateToProps = state =>{
-  return{
-    isAuthenticated: state.auth.authenticatedData !== null,
-    purchaseable: state.ings.purchaseable
-  }
-}
+// const mapStateToProps = state =>{
+//   return{
+//     isAuthenticated: state.auth.authenticatedData !== null,
+//     purchaseable: state.ings.purchaseable
+//   }
+// }
 
-const mapDispatchtoProps = dispatch =>{
-  return {
-    onAuthHandler: ()=>dispatch(authHandler())
-  }
-}
+// const mapDispatchtoProps = dispatch =>{
+//   return {
+//     onAuthHandler: ()=>dispatch(authHandler())
+//   }
+// }
 
-export default connect(mapStateToProps,mapDispatchtoProps)(App);
+export default App;

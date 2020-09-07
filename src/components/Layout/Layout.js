@@ -1,31 +1,34 @@
-import React from 'react';
+import React, {useReducer} from 'react';
 import Aux from '../../hoc/Auxilary';
 import classes from './Layout.module.css';
 import Toolbar from '../UI/Toolbar/Toolbar';
 import SideDrawer from '../UI/SideDrawer/SideDrawer';
-import {connect} from 'react-redux';
+import {connect } from 'react-redux';
 
-class Layout extends React.Component{
-    state ={
+const toggleSideDrawer = (state, action) =>{
+    switch(action.type){
+        case 'TOGGLE':
+            return {...state, SideDrawer: !state.SideDrawer}
+        default:
+            return state
+    }
+}
+
+const Layout= (props) =>{
+    const [toggleState, toggleFunc] = useReducer(toggleSideDrawer,{
         SideDrawer: false
-    }
-    showSideDrawer = () =>{
-        this.setState((prevState) => {
-          return  {SideDrawer: !prevState.SideDrawer};
-        }
-    )
-    }
-     render(){
+    })
+
         return(
             <Aux>
-            <Toolbar show={this.showSideDrawer} isAuth ={this.props.isAuth? this.props.isAuth.payload.idToken != null:false}/>
-            <SideDrawer open={this.state.SideDrawer} closed={this.showSideDrawer} isAuth ={this.props.isAuth?this.props.isAuth.payload.idToken != null:false}/>
+            <Toolbar show={()=>toggleFunc({type:'TOGGLE'})} isAuth ={props.isAuth? props.isAuth.payload.idToken != null : false}/>
+            <SideDrawer open={toggleState.SideDrawer} closed={()=>toggleFunc({type:'TOGGLE'})} isAuth ={props.isAuth? props.isAuth.payload.idToken != null:false}/>
             <main className={classes.Content}>
-                {this.props.children}
+                {props.children}
             </main>
         </Aux>    
         );    
-     }
+     
 
 } 
 

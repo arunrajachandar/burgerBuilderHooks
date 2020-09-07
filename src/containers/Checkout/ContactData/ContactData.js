@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Button from '../../../components/UI/Button/Button';
 import classes from './ContactData.module.css';
 import axios from '../../../axios-order';
@@ -12,139 +12,145 @@ import {initIngredients } from '../../../store/ingredients/ingredientsActionCrea
 
 import { Redirect } from 'react-router-dom';
 
-class ContactData extends React.Component{
-    state={
-        formTouched: false,
-        overallValidity: false,
-        orderForm:{
-            name: {
+const ContactData = (props) =>{
+    // state={
+    //     formTouched: false,
+    //     overallValidity: false,
+    //     // loading: false,
+    //     formError: null,
+    //     displayAuthMessage : false
+    // }
+    
+    const [formTouched, setFormTouched] = useState(false)
+    const [displayAuthMessage, setDisplayAuthMessage] = useState(false)
+    const [formError, setFormError] = useState(null)
+    const [overallValidity, setOverallValidity] = useState(false)
+    const [orderForm, setOrderForm] = useState({
+        name: {
+            elementType: 'input',
+            elementConfig: {
+                type:'text',
+                placeholder: 'Your Name'
+            },
+            value: '',
+            validationParam:{
+                required: true,
+                minLength: 10,
+                maxLength: 30,
+                specialCharactersNotAllowed: true
+            },
+            valid: false
+        },
+        email: {
+            elementType: 'input',
+            elementConfig: {
+                type:'email',
+                placeholder: 'Your Email'
+            },
+            value: '',
+            validationParam:{
+                required: true,
+                emailValidation: true
+            },
+            valid: false
+
+        },
+            street: {
                 elementType: 'input',
                 elementConfig: {
                     type:'text',
-                    placeholder: 'Your Name'
+                    placeholder: 'Your Street',
+                    additionaltype: 'address'
                 },
                 value: '',
                 validationParam:{
-                    required: true,
-                    minLength: 10,
-                    maxLength: 30,
-                    specialCharactersNotAllowed: true
-                },
-                valid: false
-            },
-            email: {
-                elementType: 'input',
-                elementConfig: {
-                    type:'email',
-                    placeholder: 'Your Email'
-                },
-                value: '',
-                validationParam:{
-                    required: true,
-                    emailValidation: true
+                    required: true
                 },
                 valid: false
 
             },
-                street: {
-                    elementType: 'input',
-                    elementConfig: {
-                        type:'text',
-                        placeholder: 'Your Street',
-                        additionaltype: 'address'
-                    },
-                    value: '',
-                    validationParam:{
-                        required: true
-                    },
-                    valid: false
-    
-                },
-                postal: {
-                    elementType: 'input',
-                    elementConfig: {
-                        type:'text',
-                        placeholder: 'Your PinCode',
-                        additionaltype: 'address'
-                    },
-                    value: '',
-                    validationParam:{
-                        required: true,
-                        NumbersAloneAllowed: true,
-                        maxLength: 6
-                    },
-                    valid: false
-    
-                },
-            deliveryType: {
-                elementType: 'dropdown',
+            postal: {
+                elementType: 'input',
                 elementConfig: {
-                options: [{
-                    value:'fastest',
-                     displayValue:'Fastest'
-                    },
-                    {
-                        value:'normal',
-                        displayValue: 'Normal'
-                    },
-            ]
+                    type:'text',
+                    placeholder: 'Your PinCode',
+                    additionaltype: 'address'
                 },
                 value: '',
-                valid: true
-                            
-            }
-        },
-        // loading: false,
-        formError: null,
-        displayAuthMessage : false
-    }
-    
-    orderHandler = (event) =>{
+                validationParam:{
+                    required: true,
+                    NumbersAloneAllowed: true,
+                    maxLength: 6
+                },
+                valid: false
+
+            },
+        deliveryType: {
+            elementType: 'dropdown',
+            elementConfig: {
+            options: [{
+                value:'fastest',
+                 displayValue:'Fastest'
+                },
+                {
+                    value:'normal',
+                    displayValue: 'Normal'
+                },
+        ]
+            },
+            value: '',
+            valid: true
+                        
+        }
+    })
+
+    const orderHandler = (event) =>{
         event.preventDefault();
-        //  this.setState({loading: true})
+        //  setState({loading: true})
 
         let formData = {}
         formData['address'] ={}
 
-        for( let field in this.state.orderForm){
-            if(this.state.orderForm[field].valid){
-                if(this.state.orderForm[field].elementConfig.additionaltype ==='address'){
-                    formData['address'][field] = this.state.orderForm[field].value 
+        for( let field in orderForm){
+            if(orderForm[field].valid){
+                if(orderForm[field].elementConfig.additionaltype ==='address'){
+                    formData['address'][field] = orderForm[field].value 
                 }else{
-                    formData[field] = this.state.orderForm[field].value
+                    formData[field] = orderForm[field].value
                 }
             }else{
-                this.setState({ formError: 'Form is not complete'});
+                setFormError('Form is not complete')
                 return 
 
         }
         }
-        this.setState({formError: null, displayAuthMessage: true })
+        setFormError(null)
+        setDisplayAuthMessage(true)
         const order = {
-            ingredients: this.props.ingredients,
-            price: this.props.price,
+            ingredients: props.ingredients,
+            price: props.price,
             orderedData: formData
         }
 
-        if(this.props.token){
-            this.props.onSubmitContactData(order,this.props.token.payload.idToken)
-            this.props.onInitPurchase()
+        if(props.token){
+            props.onSubmitContactData(order,props.token.payload.idToken)
+            props.onInitPurchase()
         }
         // else{
-        //     this.props.history.push('/auth')
+        //     props.history.push('/auth')
         // }
         // axios.post('/orders.json',order)
         // .then(res=>{
-        //     this.setState({loading: false,formTouched: false })
-        //     this.props.history.push('/')
+        //     setState({loading: false,formTouched: false })
+        //     props.history.push('/')
         // }
             
         //     )
-        // .catch(formError=> this.setState({loading: false, formTouched: false    }));
+        // .catch(formError=> setState({loading: false, formTouched: false    }));
     
 }
 
-    checkRule = (key, rules, val) =>{
+    const checkRule = (key, rules, val) =>{
         let valid = false
         let failedMessage = []
         for( let rule in rules){
@@ -176,9 +182,10 @@ class ContactData extends React.Component{
             return failedMessage;
         }
         if(valid){
-            this.setState({formError: null, overallValidity: true})
+            setFormError(null)
+            setOverallValidity(true)
         }else{
-            this.setState({formError: 'Form is not complete'})
+            setFormError('Form is not complete')
         }
         return valid;
     }
@@ -187,7 +194,7 @@ class ContactData extends React.Component{
     //     let valid = false
     //     switch(key){
     //         case 'name':
-    //             valid = this.checkField(rule,val)
+    //             valid = checkField(rule,val)
     //             break;
     //         default:
     //             return valid
@@ -195,37 +202,35 @@ class ContactData extends React.Component{
     //     return valid
     // }
 
-    captureValues = (key, value) =>{
-        const copyState = {...this.state.orderForm};
+    const captureValues = (key, value) =>{
+        const copyState = {...orderForm};
         copyState[key].value = value;
         if(Object.keys(copyState[key]).includes('valid')){
-            let validity = this.checkRule(key, copyState[key].validationParam, value); 
+            let validity = checkRule(key, copyState[key].validationParam, value); 
             copyState[key]['valid'] = validity.length > 0 ? false : true;
             copyState[key]['failedMessage'] = validity.length > 0 ? validity : null;
         }
-         this.setState({
-            orderForm: copyState,
-            formTouched: true
-        })
+        setOrderForm(copyState)
+        setFormTouched(true)
     }
     
-    render(){
+
         let formArray = [];
-        for (let key in this.state.orderForm){
+        for (let key in orderForm){
 
             formArray.push(
             <Input key={key} 
                 identifier={key}
-                elementType={this.state.orderForm[key].elementType} 
-                elementConfig={this.state.orderForm[key].elementConfig}
-                 value={this.state.orderForm[key].value}
+                elementType={orderForm[key].elementType} 
+                elementConfig={orderForm[key].elementConfig}
+                 value={orderForm[key].value}
                  change={(event)=>{
                     event.preventDefault();
-                    this.captureValues(key, event.target.value);
+                    captureValues(key, event.target.value);
                 }} 
-                formTouched = {this.state.formTouched}
-                valid={this.state.orderForm[key].valid}
-                failedMessage={this.state.orderForm[key].failedMessage}/>
+                formTouched = {formTouched}
+                valid={orderForm[key].valid}
+                failedMessage={orderForm[key].failedMessage}/>
                 )
 
         }
@@ -233,11 +238,11 @@ class ContactData extends React.Component{
         let form = (
             <form>
                 {formArray}
-                {this.state.formError || this.props.error ? <Aux><p className={classes.formError}>{this.state.formError}</p>
-                <p className={classes.formError}>{this.state.error}</p></Aux> : null}
-                {!this.props.token && this.state.displayAuthMessage ?<p>Please sign in to proceed with the order</p>:null}
+                {formError || props.error ? <Aux><p className={classes.formError}>{formError}</p>
+                <p className={classes.formError}>{props.error}</p></Aux> : null}
+                {!props.token && displayAuthMessage ?<p>Please sign in to proceed with the order</p>:null}
                         <div className={classes.Button} >
-            <Button btnType={this.state.overallValidity?"Success":"Danger"} clicked={this.orderHandler}>
+            <Button btnType={overallValidity?"Success":"Danger"} clicked={orderHandler}>
                 ORDER NOW
             </Button>
 
@@ -247,18 +252,18 @@ class ContactData extends React.Component{
 
         );
 
-        if(this.props.loading){
+        if(props.loading){
             form = (<Spinner />);
         }
         let content =             <div className={classes.ContactData}>
         <h3 className={classes.Header}>Enter Contact Details</h3>
         {form}
     </div>;
-        if(this.props.purchased){
+        if(props.purchased){
             return <Redirect to = "/" />
         }
         return content;
-    }
+    
 
 }
 
